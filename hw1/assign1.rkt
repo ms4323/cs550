@@ -314,7 +314,13 @@ You should implement bool-simp, not-simp, or-simp, and and-simp.
 ;(and-simp '(and a b) '(or c d)) returns (and (and a b) (or c d))
 ;(and-simp 'a 'b) returns (and a b)
 (define (and-simp expr1 expr2)
-  'replace-this-with-your-implementation
+  (cond
+    [(equal? expr1 #f) #f]
+    [(equal? expr2 #f) #f]
+    [(equal? expr1 #t) expr2]
+    [(equal? expr2 #t) expr1]
+    [else (list 'and expr1 expr2)]
+    )
 )
 
 ;Checks
