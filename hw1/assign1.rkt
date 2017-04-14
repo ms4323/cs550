@@ -612,8 +612,16 @@ If neither is true return false
 ;(no-double-negatives '(not a)) returns t
 ;(no-double-negatives '(not (not b))) returns #f
 (define (no-double-negatives? expr)
-  'replace-this-with-your-implementation
-)
+  (cond ((is-constant? expr) #t)
+        ((is-variable? expr) #t)
+        ((is-not? expr)
+         (if (or (is-constant? (op1 expr)) (is-variable? (op1 expr)))
+             #t
+             (if (is-not? (op1 expr))
+                 #f
+                 (no-double-negatives? (op1 expr)))))
+        (else (and (no-double-negatives? (op1 expr))
+                   (no-double-negatives? (op2 expr))))))
 
 ;Checks
 (define-test-suite no-double-negatives-suite
@@ -632,8 +640,9 @@ If neither is true return false
 ;Given an expression determine if it is simplified
 ;A simplified expression is a constant or contains no constants
 (define (is-simplified? expr)
-  'replace-this-with-your-implementation
-)
+  (if (is-constant? expr)
+      #t
+      (and (no-constants? expr) (no-double-negatives? expr))))
 
 ;Checks
 (define-test-suite is-simplified-suite
