@@ -445,8 +445,13 @@ You should implement bool-simp, not-simp, or-simp, and and-simp.
 ;Calling (or-simp #t #t) tells us the simplification is #t
 ;(bool-simp '(or (not (and a #f)) (or #t (or c d))) ) returns #t
 (define (bool-simp expr)
-  'replace-this-with-your-implementation
-)
+  (cond ((is-constant? expr) expr)
+        ((is-variable? expr) expr)
+        ((is-and? expr) (and-simp (bool-simp (op1 expr))
+                                  (bool-simp (op2 expr))))
+        ((is-or? expr) (or-simp (bool-simp (op1 expr))
+                                  (bool-simp (op2 expr))))
+        ((is-not? expr) (not-simp (bool-simp (op1 expr))))))
 
 (define-test-suite bool-simp-suite
 
