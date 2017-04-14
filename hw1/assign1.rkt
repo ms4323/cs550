@@ -587,8 +587,10 @@ If neither is true return false
 ;(no-constants '(and a (not c))) returns #t
 ;(no-constants '(or a (not #f)) returns #f
 (define (no-constants? expr)
-  'replace-this-with-your-implementation
-)
+  (cond ((is-constant? expr) #f)
+        ((is-variable? expr) #t)
+        ((is-not? expr) (no-constants? (op1 expr)))
+        (else (and (no-constants? (op1 expr)) (no-constants? (op2 expr))))))
 
 ;Checks
 (define-test-suite no-constants-suite
