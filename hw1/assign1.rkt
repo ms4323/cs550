@@ -363,8 +363,11 @@ You should implement bool-simp, not-simp, or-simp, and and-simp.
 ;(or-simp '(not a) '(not b)) returns (or (not a) (not b))
 ;(or-simp 'a 'b) returns (or a b)
 (define (or-simp expr1 expr2)
-  'replace-this-with-your-implementation
-)
+  (cond ((equal? expr1 #t) #t)
+        ((equal? expr2 #t) #t)
+        ((equal? expr1 #f) expr2)
+        ((equal? expr2 #f) expr1)
+        (else (list 'or expr1 expr2))))
 
 ;checks
 (define-test-suite or-simp-suite
