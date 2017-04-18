@@ -5,7 +5,7 @@ Drexel University Spring 2016-2017
 Homework Assignment 1
 Due Wed April 19 at 11:59pm
 
-Name:  TODO: PUT YOUR AND YOUR PARTNERS'S NAMES HERE
+Name:
 Xiao Han
 Mahshid Shahmohammadian
 
@@ -549,15 +549,26 @@ Students should prove the following theorems:
 2)  (bool-eval '(and expr1 expr2) env) =
     (bool-eval (and-simp expr1 expr2) env)
     
-Proof by case analysis
+Proof by case analysis:
 
 case 1: expr1 is #f and expr2 is arbitrary (the same when expr2 is #f and expr1 is arbitrary)
 	
-	(bool-eval (and-simp expr1 expr2) env)
+    (bool-eval (and-simp expr1 expr2) env)
   = (bool-eval #f env) [by definition of and-simp]
   = (and (bool-eval exp1 env) (bool-eval exp2 env) ) [by definition of bool-eval and boolean rules when expr1 = #f]
   = (bool-eval '(and expr1 expr2) env) [by definition of bool-eval] 
+  
+case 2: expr1 is #t and expr2 is arbitrary (the same when expr2 is #t and expr1 is arbitrary)
+	
+    (bool-eval (and-simp expr1 expr2) env)
+  = (bool-eval expr2 env) [by definition of and-simp]
+  = (and (bool-eval exp1 env) (bool-eval exp2 env) ) [by definition of bool-eval and boolean rules when expr1 = #t]
+  = (bool-eval '(and expr1 expr2) env) [by definition of bool-eval] 
+  
+case 3: non of expr1 and expr2 are equal to #t or #f 
 
+    (bool-eval (and-simp expr1 expr2) env)
+  = (bool-eval '(and expr1 expr2) env) [by definition of and-simp] 
 
 3)  (bool-eval '(or expr1 expr2) env) =
     (bool-eval (or-simp expr1 expr2) env)
