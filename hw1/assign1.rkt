@@ -548,8 +548,15 @@ Students should prove the following theorems:
 
 2)  (bool-eval '(and expr1 expr2) env) =
     (bool-eval (and-simp expr1 expr2) env)
+    
+Proof by case analysis
 
-...
+case 1: expr1 is #f and expr2 is arbitrary (the same when expr2 is #f and expr1 is arbitrary)
+	
+	(bool-eval (and-simp expr1 expr2) env)
+  = (bool-eval #f env) [by definition of and-simp]
+  = (and (bool-eval exp1 env) (bool-eval exp2 env) ) [by definition of bool-eval and boolean rules when expr1 = #f]
+  = (bool-eval '(and expr1 expr2) env) [by definition of bool-eval] 
 
 
 3)  (bool-eval '(or expr1 expr2) env) =
