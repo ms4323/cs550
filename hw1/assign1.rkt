@@ -315,6 +315,7 @@ You should implement bool-simp, not-simp, or-simp, and and-simp.
 ;(and-simp 'a 'b) returns (and a b)
 (define (and-simp expr1 expr2)
   (cond
+    ;[(and (is-constant? expr1) (is-constant? expr2)) (and expr1 expr2)]
     [(equal? expr1 #f) #f]
     [(equal? expr2 #f) #f]
     [(equal? expr1 #t) expr2]
@@ -654,7 +655,7 @@ If neither is true return false
 (check-equal? (is-simplified? '(and x y)) #t)
 (check-equal? (is-simplified? '(not g)) #t)
 (check-equal? (is-simplified? '(or (not (and #t a)) (or a b))) #f)
-(check-equal? (is-simplified? '(not (and a b) (or c d))) #t)
+(check-equal? (is-simplified? '(not (and a b))) #t)
 (check-equal? (is-simplified? '(or (and (not a) (not b)) (or (and x y) #t))) #f)   ;;Changed
 (check-equal? (is-simplified? #f) #t)
 (check-equal? (is-simplified? #t) #t)
