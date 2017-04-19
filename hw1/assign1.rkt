@@ -565,6 +565,13 @@ case 1: expr is constant
     (bool-eval (not-simp expr) env)
   = (bool-eval '(not expr) env) [by definition of not-simp] 
   
+  case 3: expr contains not
+  
+    (bool-eval (not-simp (not exp2)) env)
+  = (bool-eval exp2 env) [by definition of not-simp] 
+  = (not (bool-eval exp env)) [by definition of bool-eval]
+  = (bool-eval '(not expr)) [by definition of bool-eval]
+  
 
 2)  (bool-eval '(and expr1 expr2) env) =
     (bool-eval (and-simp expr1 expr2) env)
@@ -575,14 +582,14 @@ case 1: expr1 is #f and expr2 is arbitrary (the same when expr2 is #f and expr1 
 	
     (bool-eval (and-simp expr1 expr2) env)
   = (bool-eval #f env) [by definition of and-simp]
-  = (and (bool-eval exp1 env) (bool-eval exp2 env) ) [by definition of bool-eval and boolean rules when expr1 = #f]
+  = (and (bool-eval expr1 env) (bool-eval expr2 env) ) [by definition of bool-eval and boolean rules when expr1 = #f]
   = (bool-eval '(and expr1 expr2) env) [by definition of bool-eval] 
   
 case 2: expr1 is #t and expr2 is arbitrary (the same when expr2 is #t and expr1 is arbitrary)
 	
     (bool-eval (and-simp expr1 expr2) env)
   = (bool-eval expr2 env) [by definition of and-simp]
-  = (and (bool-eval exp1 env) (bool-eval exp2 env) ) [by definition of bool-eval and boolean rules when expr1 = #t]
+  = (and (bool-eval expr1 env) (bool-eval expr2 env) ) [by definition of bool-eval and boolean rules when expr1 = #t]
   = (bool-eval '(and expr1 expr2) env) [by definition of bool-eval] 
   
 case 3: none of expr1 and expr2 are equal to #t or #f 
@@ -600,14 +607,14 @@ case 1: expr1 is #f and expr2 is arbitrary (the same when expr2 is #f and expr1 
 
     (bool-eval (or-simp expr1 expr2) env)
   = (bool-eval expr2 env) [by definition of or-simp]
-  = (or (bool-eval exp1 env) (bool-eval exp2 env) ) [by definition of bool-eval and boolean rules when expr1 = #f]
+  = (or (bool-eval expr1 env) (bool-eval expr2 env) ) [by definition of bool-eval and boolean rules when expr1 = #f]
   = (bool-eval '(or expr1 expr2) env) [by definition of bool-eval]	
   
 case 2: expr1 is #t and expr2 is arbitrary (the same when expr2 is #t and expr1 is arbitrary)
 	
     (bool-eval (or-simp expr1 expr2) env)
   = (bool-eval #t env) [by definition of or-simp]
-  = (or (bool-eval exp1 env) (bool-eval exp2 env) ) [by definition of bool-eval and boolean rules when expr1 = #t]
+  = (or (bool-eval expr1 env) (bool-eval expr2 env) ) [by definition of bool-eval and boolean rules when expr1 = #t]
   = (bool-eval '(or expr1 expr2) env) [by definition of bool-eval] 
   
 case 3: none of expr1 and expr2 are equal to #t or #f 
