@@ -451,7 +451,7 @@ You should implement bool-simp, not-simp, or-simp, and and-simp.
         ((is-and? expr) (and-simp (bool-simp (op1 expr))
                                   (bool-simp (op2 expr))))
         ((is-or? expr) (or-simp (bool-simp (op1 expr))
-                                  (bool-simp (op2 expr))))
+                                (bool-simp (op2 expr))))
         ((is-not? expr) (not-simp (bool-simp (op1 expr))))))
 
 (define-test-suite bool-simp-suite
