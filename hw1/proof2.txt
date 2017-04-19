@@ -18,7 +18,8 @@ proof of lemma 1 by case analysis:
 
 	case2: E1 is not #t or #f
 	(not-simp E1) = '(not E1)
-	E1 is simplified and is not #t or #f so '(not E1) will not contain any #t or #f
+	if E1 contains not, according to not-simp definition it will get simplified to E2
+	E2 is simplified and is not #t or #f so '(not E1) will not contain any #t or #f
 
 proof of lemma 2 by case analysis:
 
