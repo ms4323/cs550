@@ -618,7 +618,45 @@ case 3: none of expr1 and expr2 are equal to #t or #f
 
 4)  (bool-eval expr env) = (bool-eval (bool-simp expr) env)
 
-...
+Proof by case analysis:
+
+case 1: expr = '(and E1 E2)
+
+Proof of (bool-eval (bool-simp '(and E1 E2) env)) = (bool-eval '(and E1 E2) env) under the assumptions [IH]
+(bool-eval (bool-simp E1 env) = (bool-eval E1 env)  and
+(bool-eval (bool-simp E2 env) = (bool-eval E2 env)
+
+  (bool-eval (bool-simp '(and E1 E2)))
+= (bool-eval (and-simp (bool-simp E1) (bool-simp E2) env))            [by def of bool-simp]
+= (bool-eval (and (bool-simp E1) (bool-simp E2) env))                 [by number 2]
+= (and (bool-eval (bool-simp E1) env) (bool-eval (bool-simp E2) env)) [by def of bool-eval]
+= (and (bool-eval E1 env) (bool-eval E2 env))                         [by IH]
+= (bool-eval '(and E1 E2) env)                                        [by def of bool-eval]
+
+case 2: expr = '(or E1 E2)
+
+Proof of (bool-eval (bool-simp '(or E1 E2) env)) = (bool-eval '(or E1 E2) env) under the assumptions [IH]
+(bool-eval (bool-simp E1 env) = (bool-eval E1 env)  and
+(bool-eval (bool-simp E2 env) = (bool-eval E2 env)
+
+  (bool-eval (bool-simp '(or E1 E2)))
+= (bool-eval (or-simp (bool-simp E1) (bool-simp E2) env))             [by def of bool-simp]
+= (bool-eval (or (bool-simp E1) (bool-simp E2) env))                  [by number 3]
+= (or (bool-eval (bool-simp E1) env) (bool-eval (bool-simp E2) env))  [by def of bool-eval]
+= (or (bool-eval E1 env) (bool-eval E2 env))                          [by IH]
+= (bool-eval '(or E1 E2) env)                                         [by def of bool-eval]
+
+case 3: expr = '(not E1)
+
+Proof of (bool-eval (bool-simp '(not E1) env)) = (bool-eval '(not E1) env) under the assumption [IH]
+(bool-eval (bool-simp E1 env) = (bool-eval E1 env)
+
+  (bool-eval (bool-simp '(not E1)))
+= (bool-eval (not-simp (bool-simp E1) env))                           [by def of bool-simp]
+= (bool-eval (not (bool-simp E1) env))                                [by number 1]
+= (not (bool-eval (bool-simp E1) env) env))                           [by def of bool-eval]
+= (not (bool-eval E1 env))                                            [by IH]
+= (bool-eval '(not E1) env) [by def of bool-eval]
 
 
 |#
@@ -733,5 +771,63 @@ Part 4
 
 Prove by induction that (is-simplified? (bool-simp expr))
 
+
+Proof is by induction on expr.
+There are two base cases (constant and variable) and three inductive cases '(not E1), '(and E1 E2), '(or E1 E2)
+we will use three lemmas.
+
+Lemma 1. (is-simplified? E1) → (is-simplified? (not-simp E1))
+
+Lemma 2. (is-simplified? E1) ∧ (is-simplified E2) → (is-simplified? (and-simp E1 E2))
+
+Lemma 3. (is-simplified? E1) ∧ (is-simplified E2) → (is-simplified? (or-simp E1 E2))
+
+we will prove them in order:
+
+proof of lemma 1 by case analysis:
+
+	case 1: E1 = #f or #t
+	(not-simp E1) = #t or #f in order, which is simplified
+
+	case2: E1 is not #t or #f
+	(not-simp E1) = '(not E1)
+	if E1 contains not, according to not-simp definition it will get simplified to E2
+	E2 is simplified and is not #t or #f so '(not E1) will not contain any #t or #f
+
+proof of lemma 2 by case analysis:
+
+	case 1: E1 = #f (the same when E2 = #f)
+	(or-simp E1 E2) = E2 which is simplified by assumption
+
+	case 2: E1 = #t (the same when E2 = #t)
+	(or-simp E1 E2) = #t that is simplified
+
+	case 3: E1 and E2 are not #f or #t
+	(or-simp E1 E2) = '(or E1 E2)
+	E1 and E2 are simplified and are not #f so '(or E1 E2) will not contain any #f and will not conain any and with #t
+
+proof of lemma 3 by case analysis:
+
+	case 1: E1 = #f (the same when E2 = #f)
+	(and-simp E1 E2) = #f that is simplified 
+
+	case 2: E1 = #t (the same when E2 = #t)
+	(and-simp E1 E2) = E2 which is simplified by assumption
+
+	case 3: E1 and E2 are not #f or #t
+	(and-simp E1 E2) = '(and E1 E2)
+	E1 and E2 are simplified and are not #f or #t so '(or E1 E2) will not contain any #f and will not conain any and with #t 
+
+now we will prove (is-simplified? (bool-simp expr)) using these 3 lemmas:
+1) base cases
+	if expr = constant then (is-simplified? (bool-simp expr)) = (is-simplified? expr) so it is #t
+
+2) induction
+	assume (is-simplified? E1) and (is-simplified? E2) 
+	(is-simplified? bool-simp '(or E1 E2)) = (is-simplified? (or-simp E1 E2))
+	also
+	(is-simplified? bool-simp '(and E1 E2)) = (is-simplified? (and-simp E1 E2))
+	also
+(is-simplified? bool-simp '(not E1)) = (is-simplified? (not-simp E1))
 
 |#
