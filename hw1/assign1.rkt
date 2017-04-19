@@ -544,7 +544,27 @@ Students should prove the following theorems:
 
 1)  (bool-eval '(not expr) env) = (bool-eval (not-simp expr) env)
 
-...
+Proof by case analysis:
+
+case 1: expr is constant 
+
+  if expr = #t
+    (bool-eval (not-simp #t) env)
+  = (bool-eval #f env) [be definition of not-simp]
+  = (not (bool-eval #t)) [by definition of bool-eval and boolean rules when expr = #t] 
+  = (bool-eval '(not expr)) [by definition of bool-eval] 
+  
+  if expr = #f
+    (bool-eval (not-simp #f) env)
+  = (bool-eval #t env) [be definition of not-simp]
+  = (not (bool-eval #f)) [by definition of bool-eval and boolean rules when expr = #f] 
+  = (bool-eval '(not expr)) [by definition of bool-eval] 
+  
+ case 2: expr is not constant 
+ 
+    (bool-eval (not-simp expr) env)
+  = (bool-eval '(not expr) env) [by definition of not-simp] 
+  
 
 2)  (bool-eval '(and expr1 expr2) env) =
     (bool-eval (and-simp expr1 expr2) env)
