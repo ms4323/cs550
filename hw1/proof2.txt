@@ -1,0 +1,64 @@
+Proof of (is-simplified? (bool-simp expr)):
+
+proof is by induction on expr. There are two base cases (constant and variable) and three inductive cases '(not E1), '(and E1 E2), '(or E1 E2)
+we will use three lemmas.
+
+Lemma 1. (is-simplified? E1) → (is-simplified? (not-simp E1))
+
+Lemma 2. (is-simplified? E1) ∧ (is-simplified E2) → (is-simplified? (and-simp E1 E2))
+
+Lemma 3. (is-simplified? E1) ∧ (is-simplified E2) → (is-simplified? (or-simp E1 E2))
+
+we will prove them in order:
+
+proof of lemma 1 by case analysis:
+
+	case 1: E1 = #f or #t
+	(not-simp E1) = #t or #f in order, which is simplified
+
+	case2: E1 is not #t or #f
+	(not-simp E1) = '(not E1)
+	E1 is simplified and is not #t or #f so '(not E1) will not contain any #t or #f
+
+proof of lemma 2 by case analysis:
+
+	case 1: E1 = #f (the same when E2 = #f)
+	(or-simp E1 E2) = E2 which is simplified by assumption
+
+	case 2: E1 = #t (the same when E2 = #t)
+	(or-simp E1 E2) = #t that is simplified
+
+	case 3: E1 and E2 are not #f or #t
+	(or-simp E1 E2) = '(or E1 E2)
+	E1 and E2 are simplified and are not #f so '(or E1 E2) will not contain any #f and will not conain any and with #t
+
+proof of lemma 3 by case analysis:
+
+	case 1: E1 = #f (the same when E2 = #f)
+	(and-simp E1 E2) = #f that is simplified 
+
+	case 2: E1 = #t (the same when E2 = #t)
+	(and-simp E1 E2) = E2 which is simplified by assumption
+
+	case 3: E1 and E2 are not #f or #t
+	(and-simp E1 E2) = '(and E1 E2)
+	E1 and E2 are simplified and are not #f or #t so '(or E1 E2) will not contain any #f and will not conain any and with #t 
+
+now we will prove (is-simplified? (bool-simp expr)) using these 3 lemmas:
+1) base cases
+	if expr = constant then (is-simplified? (bool-simp expr)) = (is-simplified? expr) so it is #t
+
+2) induction
+	assume (is-simplified? E1) and (is-simplified? E2) 
+	(is-simplified? bool-simp '(or E1 E2)) = (is-simplified? (or-simp E1 E2))
+	also
+	(is-simplified? bool-simp '(and E1 E2)) = (is-simplified? (and-simp E1 E2))
+	also
+	(is-simplified? bool-simp '(not E1)) = (is-simplified? (not-simp E1))
+
+
+
+
+
+
+

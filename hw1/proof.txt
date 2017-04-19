@@ -1,0 +1,37 @@
+Proof of (bool-eval (bool-simp '(and E1 E2) env)) = (bool-eval '(and E1 E2) env) under the assumptions [IH]
+(bool-eval (bool-simp E1 env) = (bool-eval E1 env)  and
+(bool-eval (bool-simp E2 env) = (bool-eval E2 env)
+
+  (bool-eval (bool-simp '(and E1 E2)))
+= (bool-eval (and-simp (bool-simp E1) (bool-simp E2) env))            [by def of bool-simp]
+= (bool-eval (and (bool-simp E1) (bool-simp E2) env))                 [by number 2]
+= (and (bool-eval (bool-simp E1) env) (bool-eval (bool-simp E2) env)) [by def of bool-eval]
+= (and (bool-eval E1 env) (bool-eval E2 env))                         [by IH]
+= (bool-eval '(and E1 E2) env)                                        [by def of bool-eval]
+
+
+Proof of (bool-eval (bool-simp '(or E1 E2) env)) = (bool-eval '(or E1 E2) env) under the assumptions [IH]
+(bool-eval (bool-simp E1 env) = (bool-eval E1 env)  and
+(bool-eval (bool-simp E2 env) = (bool-eval E2 env)
+
+  (bool-eval (bool-simp '(or E1 E2)))
+= (bool-eval (or-simp (bool-simp E1) (bool-simp E2) env))             [by def of bool-simp]
+= (bool-eval (or (bool-simp E1) (bool-simp E2) env))                  [by number 3]
+= (or (bool-eval (bool-simp E1) env) (bool-eval (bool-simp E2) env))  [by def of bool-eval]
+= (or (bool-eval E1 env) (bool-eval E2 env))                          [by IH]
+= (bool-eval '(or E1 E2) env)                                         [by def of bool-eval]
+
+
+
+Proof of (bool-eval (bool-simp '(not E1) env)) = (bool-eval '(not E1) env) under the assumption [IH]
+(bool-eval (bool-simp E1 env) = (bool-eval E1 env)
+
+  (bool-eval (bool-simp '(not E1)))
+= (bool-eval (not-simp (bool-simp E1) env))                           [by def of bool-simp]
+= (bool-eval (not (bool-simp E1) env))                                [by number 1]
+= (not (bool-eval (bool-simp E1) env) env))                           [by def of bool-eval]
+= (not (bool-eval E1 env))                                            [by IH]
+= (bool-eval '(not E1) env)                                           [by def of bool-eval]
+
+
+
