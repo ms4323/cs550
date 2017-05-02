@@ -1,6 +1,6 @@
 #lang racket
 (require racket/mpair)
-
+(require math/number-theory)
 
 ;;;;Ported to Racket by Geoffrey Mainland <mainland@cs.drexel.edu>
 ;;;;Added value in driver-loop which gets actual value and
@@ -143,8 +143,14 @@
         (list '* *)
         (list '/ /)
         (list '= =)
+        (list '< <)
+        (list '<= <=)
+        (list '> >)
+        (list '>= >=)
+        (list 'prime? prime?)
         (list 'newline newline)
         (list 'display display)
+        (list 'error (lambda () (error "Metacircular Interpreter Aborted")))
 ;;      more primitives
         ))
 
@@ -386,9 +392,26 @@
                              the-empty-environment)))
     (define-variable! 'true true initial-env)
     (define-variable! 'false false initial-env)
+    (define-variable! 'null null initial-env)
     (eval-definition '(define (cons x y) (lambda (m) (m x y))) initial-env)
     (eval-definition '(define (car z) (value (z (lambda (p q) p)))) initial-env)
     (eval-definition '(define (cdr z) (value (z (lambda (p q) q)))) initial-env)
+    (eval-definition '(define (filter pred l)
+                        (cond ((null? l) '())
+                              ((pred (car l)) (cons (car l) (filter pred (cdr l))))
+                              (else (filter pred (cdr l)))))
+                     initial-env)
+    (eval-definition '(define (enumerate-interval start end)
+                        (if (> start end)
+                            null
+                            (cons start
+                                  (enumerate-interval (+ 1 start) end))))
+                     initial-env)
+    (eval-definition '(define
+                        part1-test
+                        (car (cdr (filter prime?
+                                          (enumerate-interval 10000 1000000)))))
+                     initial-env)
     initial-env))
 
 (define (primitive-procedure? proc)
