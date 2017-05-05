@@ -27,6 +27,7 @@
          (make-procedure (lambda-parameters exp)
                          (lambda-body exp)
                          env))
+        
         ((begin? exp) 
          (eval-sequence (begin-actions exp) env))
         ((let? exp) (mceval (let->lambda exp) env))
@@ -308,7 +309,24 @@
                              the-empty-environment)))
     (define-variable! 'true true initial-env)
     (define-variable! 'false false initial-env)
+    (define-variable! 'null null initial-env)
+    (define-variable! 'empty-stream null initial-env)
+    (eval-definition '(define (stream-empty? s) (null? s)) initial-env)
     (eval-definition '(define (not b) (if b false true)) initial-env)
+    (eval-definition '(define (force proc) (proc)) initial-env)
+    (eval-definition '(define (stream-first s) (car s)) initial-env)
+    (eval-definition '(define (stream-rest s) (force (cdr s))) initial-env)
+    (eval-definition '(define (memoize proc)
+                        (let ((evaluated? false)
+                              (result null))
+                          (lambda ()
+                            (if evaluated?
+                                result
+                                (begin
+                                  (set! result (proc))
+                                  (set! evaluated? true)
+                                  result)))))
+                        initial-env)
     initial-env))
 
 (define (primitive-procedure? proc)
@@ -331,6 +349,7 @@
         (list '< <)
         (list '<= <=)
         (list 'eq? eq?)
+        (list 'null? null?)
         (list 'error (lambda () (error)))
         ;;(list ' +)
 ;;      more primitives
