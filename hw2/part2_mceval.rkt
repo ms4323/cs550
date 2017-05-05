@@ -30,6 +30,10 @@
         
         ((begin? exp) 
          (eval-sequence (begin-actions exp) env))
+        ((delay? exp)
+         (mceval (delay->lambda exp) env))
+        ((stream-cons? exp)
+         (mceval (build-stream exp) env))
         ((let? exp) (mceval (let->lambda exp) env))
         ((cond? exp) (mceval (cond->if exp) env))
         ((application? exp)
@@ -106,19 +110,42 @@
 ;;implementation of let
 (define (let? exp)
   (tagged-list? exp 'let))
+
 (define (let->lambda exp)
   (cons
    (make-lambda
     (let-parameterlist exp)
     (let-body exp))
    (let-argumentlist exp)))
+
 (define (let-parameterlist exp)
   (map car (cadr exp)))
+
 (define (let-argumentlist exp)
   (map cadr (cadr exp)))
+
 (define (let-body exp) (cddr exp))
 
+;;implementation of delay and stream-cons
+(define (delay? exp)
+  (tagged-list? exp 'delay))
 
+(define (delay->lambda exp)
+  (list
+   'memoize
+   (make-lambda
+    '()
+    (cdr exp))))
+
+(define (stream-cons? exp)
+  (tagged-list? exp 'stream-cons))
+
+(define (build-stream exp)
+  (list 'cons
+        (cadr exp)
+        (list 'delay
+              (caddr exp))))
+  
 (define (assignment-variable exp) (cadr exp))
 
 (define (assignment-value exp) (caddr exp))
