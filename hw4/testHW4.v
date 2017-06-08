@@ -47,23 +47,32 @@ Fixpoint find (x : id) (d : partial_map) : booloption :=
                      else find x d'
   end.
 
+Definition and_eval (b1 : booloption) (b2 : booloption) : booloption :=
+  match b1, b2 with
+  | Some b1', Some b2' => Some (andb b1' b2')
+  | _       , _        => None
+  end.
+
+Definition or_eval (b1 : booloption) (b2 : booloption) : booloption :=
+  match b1, b2 with
+  | Some b1' , Some b2' => Some (orb b1' b2')
+  | _        , _        => None
+  end.
+
+Definition not_eval (b1 : booloption) : booloption :=
+  match b1 with
+  | Some b1' => Some (negb b1')
+  | _        => None
+  end.
+
 Fixpoint bool_eval (m : partial_map) (b : bool_exp) : booloption :=
   match b with
   | BTrue       => Some true
   | BFalse      => Some false
   | BVar var    => find var m
-  | BNot b1     => match (bool_eval m b1) with
-                   | None     => None 
-                   | Some val => Some (negb val)
-                   end
-  | BAnd b1 b2  => match (bool_eval m b1), (bool_eval m b2) with
-                   | Some b1' , Some b2' => Some (andb b1' b2')
-                   | _ ,_ => None
-                   end 
-  | BOr b1 b2   => match (bool_eval m b1), (bool_eval m b2) with
-                   | Some b1' , Some b2' => Some (orb b1' b2')
-                   | _ ,_ => None
-                   end  
+  | BNot b1     => not_eval (bool_eval m b1)
+  | BAnd b1 b2  => and_eval (bool_eval m b1) (bool_eval m b2)
+  | BOr b1 b2   => or_eval (bool_eval m b1) (bool_eval m b2)
   end.
 
 (*Just want to save some time contructing a partial_map*)
