@@ -1,55 +1,123 @@
 Require Import Coq.Bool.Bool.
+Require Import Coq.Arith.Arith.
+Require Import Coq.Arith.EqNat.
+Require Import Coq.Lists.List.
+Inductive id : Type :=
+  | Id : nat -> id.
+
+Inductive partial_map : Type :=
+  | empty  : partial_map
+  | record : id -> bool -> partial_map -> partial_map.
+
+Inductive booloption : Type :=
+  | None : booloption
+  | Some : bool -> booloption.
 
 Inductive bool_exp : Type :=
-  | BTrue : bool_exp
+  | BTrue  : bool_exp
   | BFalse : bool_exp
-  | BNot : bool_exp -> bool_exp
-  | BAnd : bool_exp -> bool_exp -> bool_exp
-  | BOr : bool_exp -> bool_exp -> bool_exp.
+  | BVar   : id -> bool_exp
+  | BNot   : bool_exp -> bool_exp
+  | BAnd   : bool_exp -> bool_exp -> bool_exp
+  | BOr    : bool_exp -> bool_exp -> bool_exp.
 
+Definition update (d : partial_map) (x : id) (value : bool) : partial_map :=
+  record x value d.
 
-Fixpoint bool_eval (b : bool_exp) : bool :=
+Fixpoint contruct_map (vars : list nat) (vals : list bool) : partial_map :=
+  match vars, vals with
+  | nil,   nil     => empty
+  | v::vs, va::vas => update (contruct_map vs vas) (Id v) va 
+  | _   , _        => empty
+  end.
+
+Definition beq_id (x : id) (y : id) : bool :=
+  match x, y with
+  | Id x', Id y' => if beq_nat x' y'
+                    then true
+                    else false
+  end.
+
+(* This find function doesn't use booloption, it assumes d always has an x variable*)
+Fixpoint find (x : id) (d : partial_map) : booloption :=
+  match d with
+  | empty => None
+  | record y v d' => if beq_id x y
+                     then Some v
+                     else find x d'
+  end.
+
+Fixpoint bool_eval (m : partial_map) (b : bool_exp) : bool :=
   match b with
   | BTrue       => true
   | BFalse      => false
-  | BNot b1     => negb (bool_eval b1)
-  | BAnd b1 b2  => andb (bool_eval b1) (bool_eval b2)
-  | BOr b1 b2   => orb (bool_eval b1) (bool_eval b2)
+  | BVar var    => match find var m with
+                   | None     => false (*I don't know if there is a good way to do this*)
+                   | Some val => val
+                   end
+  | BNot b1     => negb (bool_eval m b1)
+  | BAnd b1 b2  => andb (bool_eval m b1) (bool_eval m b2)
+  | BOr b1 b2   => orb (bool_eval m b1) (bool_eval m b2)
   end.
 
+(*Just want to save some time contructing a partial_map*)
+Definition test_partial_map : partial_map :=
+  contruct_map (1::2::3::4::nil) (true::false::false::true::nil).
+
 Example test_bool_eval1:
-  bool_eval (BOr BTrue BFalse) = true.
+  bool_eval test_partial_map (BOr BTrue BFalse) = true.
 Proof. reflexivity. Qed.
 
 Example test_bool_eval2:
-  bool_eval (BAnd BTrue BFalse) = false.
+  bool_eval test_partial_map (BAnd BTrue BFalse) = false.
 Proof. reflexivity. Qed.
 
 Example test_bool_eval3:
-  bool_eval (BNot BFalse) = true.
+  bool_eval test_partial_map (BNot BFalse) = true.
 Proof. reflexivity. Qed.
+
+Example test_bool_eval4:
+  bool_eval test_partial_map (BAnd (BOr (BVar (Id 1)) (BVar (Id 2))) (BAnd (BVar (Id 3)) (BNot BFalse))) = false.
+Proof. reflexivity. Qed.
+
+Example test_bool_eval5:
+  bool_eval test_partial_map (BNot (BVar (Id 1))) = false.
+Proof. reflexivity. Qed.
+
 
 Fixpoint simp_not (b:bool_exp) : bool_exp :=
   match b with
-  | BTrue => BTrue
-  | BFalse => BFalse
-  | BNot b' => simp_not b'
-  | BOr b1 b2 => BOr (simp_not b1) (simp_not b2)
-  | BAnd b1 b2 => BAnd (simp_not b1) (simp_not b2)
+  | BTrue      => BTrue
+  | BFalse     => BFalse
+  | BVar var   => BNot (BVar var)
+  | BNot b'    => simp_not b'
+  | exp        => BNot exp
+(*  | BOr b1 b2  => BOr (simp_not b1) (simp_not b2)
+  | BAnd b1 b2 => BAnd (simp_not b1) (simp_not b2) *)
   end.
 
 Example test_simp_not1:
-  bool_eval (simp_not (BOr BTrue BFalse)) = true.
+  bool_eval test_partial_map (simp_not (BOr BTrue BFalse)) = false.
 Proof. simpl. reflexivity. Qed.
 
 
 Example test_simp_not2:
-  bool_eval (simp_not (BAnd (BNot BFalse) BFalse)) = false.
+  bool_eval test_partial_map (simp_not (BAnd (BNot BFalse) BFalse)) = true.
 Proof. simpl. reflexivity. Qed.
 
 
 Example test_simp_not3:
-  bool_eval (simp_not (BNot (BNot BTrue))) = true.
+  bool_eval test_partial_map (simp_not (BNot (BNot BTrue))) = true.
+Proof. simpl. reflexivity. Qed.
+
+Definition test_map : partial_map :=
+  record 
+Example test_simp_not4:
+  bool_eval test_partial_map (simp_not (BNot (BNot BTrue))) = true.
+Proof. simpl. reflexivity. Qed.
+
+Example test_simp_not5:
+  bool_eval test_partial_map (simp_not (BNot (BNot BTrue))) = true.
 Proof. simpl. reflexivity. Qed.
 
 Fixpoint simp_or (b:bool_exp) : bool_exp :=
