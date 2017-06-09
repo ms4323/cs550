@@ -104,7 +104,6 @@ Fixpoint simp_not (b:bool_exp) : bool_exp :=
   match b with
   | BTrue      => BFalse
   | BFalse     => BTrue
-  | BVar var   => BNot (BVar var)
   | BNot b'    => b'
   | exp        => BNot exp
 (*  | BOr b1 b2  => BOr (simp_not b1) (simp_not b2)
@@ -197,6 +196,18 @@ Proof. simpl. reflexivity. Qed.
 
 Example test_simp_bool3:
   simp_bool (BNot (BAnd BTrue BFalse)) = BTrue.
+Proof. simpl. reflexivity. Qed.
+
+Example test_simp_bool4:
+  simp_bool (BNot (BNot BFalse)) = BFalse.
+Proof. simpl. reflexivity. Qed.
+
+Example test_simp_bool5:
+  simp_bool (BAnd (BVar (Id 1)) (BNot (BNot BFalse))) = BFalse.
+Proof. simpl. reflexivity. Qed.
+
+Example test_simp_bool6:
+  simp_bool (BOr (BVar (Id 2)) (BAnd (BVar (Id 1)) (BNot (BNot BTrue)))) = BOr (BVar (Id 2)) (BVar (Id 1)).
 Proof. simpl. reflexivity. Qed.
 
 
