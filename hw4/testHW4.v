@@ -134,59 +134,69 @@ Example test_simp_not5:
   bool_eval test_partial_map (simp_not (BNot (BNot BTrue))) = Some false.
 Proof. simpl. reflexivity. Qed.
 
-Fixpoint simp_or (b:bool_exp) : bool_exp :=
-  match b with
-  | BTrue => BTrue
-  | BFalse => BFalse
-  | BNot b' => BNot (simp_or b')
-  | BOr BFalse b' => simp_or b'
-  | BOr b' BFalse => simp_or b'
-  | BOr b1 b2 => BOr (simp_or b1) (simp_or b2)
-  | BAnd b1 b2 => BAnd (simp_or b1) (simp_or b2)
+Fixpoint simp_or (b1:bool_exp) (b2:bool_exp) : bool_exp :=
+  match b1,b2 with
+  | BFalse , b' => b'
+  | b' ,  BFalse => b'
+  | BTrue , b2 => BTrue
+  | b1 , BTrue => BTrue
+  | b1, b2 => BOr b1 b2
   end.
 
+Example test_simp_or0:
+  simp_or BTrue BFalse = BTrue.
+Proof. simpl. reflexivity. Qed.
+
 Example test_simp_or1:
-  bool_eval (simp_or (BOr BTrue BFalse)) = true.
+  bool_eval test_partial_map (simp_or BTrue BFalse) = Some true.
 Proof. simpl. reflexivity. Qed.
 
 Example test_simp_or2:
-  bool_eval (simp_or (BAnd (BNot BFalse) BFalse)) = false.
+  simp_or (BNot BFalse) BFalse = BNot BFalse.
 Proof. simpl. reflexivity. Qed.
 
-Fixpoint simp_and (b:bool_exp) : bool_exp :=
-  match b with
-  | BTrue => BTrue
-  | BFalse => BFalse
-  | BNot b' => BNot (simp_and b')
-  | BAnd BTrue b' => simp_and b'
-  | BAnd b' BTrue => simp_and b'
-  | BAnd b1 b2 => BAnd (simp_and b1) (simp_and b2)
-  | BOr b1 b2 => BOr (simp_and b1) (simp_and b2)
+Fixpoint simp_and (b1:bool_exp) (b2:bool_exp) : bool_exp :=
+  match b1,b2 with
+  | BFalse , b' => BFalse
+  | b' ,  BFalse => BFalse
+  | BTrue , b2 => b2
+  | b1 , BTrue => b1
+  | b1, b2 => BAnd b1 b2
   end.
+  
+
+Example test_simp_and0:
+  simp_and BTrue BFalse = BFalse.
+Proof. simpl. reflexivity. Qed.
 
 Example test_simp_and1:
-  bool_eval (simp_and (BOr BTrue BFalse)) = true.
+  bool_eval test_partial_map (simp_and BTrue BFalse) = Some false.
 Proof. simpl. reflexivity. Qed.
 
 Example test_simp_and2:
-  bool_eval (simp_and (BAnd (BNot BFalse) BFalse)) = false.
+  simp_and (BNot BFalse) BFalse = BFalse.
 Proof. simpl. reflexivity. Qed.
 
 Fixpoint simp_bool (b:bool_exp) : bool_exp :=
   match b with 
   | BTrue => BTrue
   | BFalse => BFalse
+  | BVar var    => BVar var
   | BNot b' => simp_not (simp_bool b')
-  | BOr b1 b2 => simp_or (BOr (simp_bool b1) (simp_bool b2))
-  | BAnd b1 b2 => simp_and (BAnd (simp_bool b1) (simp_bool b2))
+  | BOr b1 b2 => simp_or (simp_bool b1) (simp_bool b2)
+  | BAnd b1 b2 => simp_and (simp_bool b1) (simp_bool b2)
   end.
 
 Example test_simp_bool1:
-  bool_eval (simp_bool (BAnd (BNot BFalse) BFalse)) = false.
+  bool_eval test_partial_map (simp_bool (BAnd (BNot BFalse) BFalse)) = Some false.
 Proof. simpl. reflexivity. Qed.
 
 Example test_simp_bool2:
-  bool_eval (simp_bool (BNot (BAnd BTrue BFalse))) = true.
+  bool_eval test_partial_map (simp_bool (BNot (BAnd BTrue BFalse))) = Some true.
+Proof. simpl. reflexivity. Qed.
+
+Example test_simp_bool3:
+  simp_bool (BNot (BAnd BTrue BFalse)) = BTrue.
 Proof. simpl. reflexivity. Qed.
 
 
