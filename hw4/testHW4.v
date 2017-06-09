@@ -212,3 +212,35 @@ Proof. simpl. reflexivity. Qed.
 
 
 
+
+(*
+Theorem not_eval_t: forall (m : partial_map) (b : bool_exp) ,
+not_eval (bool_eval m (simp_bool b)) = bool_eval m (simp_not (simp_bool b)).
+Proof. 
+intros m b.
+- simpl.
+*)
+Theorem and_eval_t: forall (m : partial_map) (b1 : bool_exp) (b2 : bool_exp) ,
+and_eval (bool_eval m (simp_bool b1)) (bool_eval m b2) =
+bool_eval m (simp_and (simp_bool b1) (simp_bool b2)).
+Proof. Admitted.
+
+Theorem or_eval_t: forall (m : partial_map) (b1 : bool_exp) (b2 : bool_exp) ,
+or_eval (bool_eval m b1) (bool_eval m (simp_bool b2)) =
+bool_eval m (simp_or (simp_bool b1) (simp_bool b2)).
+Proof. Admitted.
+
+Theorem bool_boolsimp: forall (m : partial_map) (b : bool_exp) ,
+bool_eval m b = bool_eval m (simp_bool b).
+Proof.
+intros m b.
+induction b.
+- reflexivity.
+- reflexivity.
+- reflexivity.
+- simpl. rewrite -> IHb. rewrite -> not_eval_t. reflexivity.
+- simpl. rewrite -> IHb1. rewrite -> and_eval_t. reflexivity.
+- simpl. rewrite -> IHb2. rewrite -> or_eval_t. reflexivity.
+Qed.
+
+
